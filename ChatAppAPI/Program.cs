@@ -5,8 +5,10 @@ using ChatAppAPI.Servisler.Kullanicilar;
 using ChatAppAPI.Servisler.Mesajlar;
 using ChatAppAPI.Servisler.OturumYonetimi;
 using ChatAppAPI.Servisler.OturumYonetimi.JWT;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -33,6 +35,9 @@ builder.Services.AddScoped<IJwtServisi, JwtServisi>();
 builder.Services.AddTransient<IKullaniciServisi, KullaniciServisi>();
 builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformerGelistirici>();
 
+builder.Services.AddHealthChecks()
+    .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")!)
+    .AddSignalRHub(builder.Configuration["SignalR:HubUrl"]!);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -76,8 +81,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.MapHealthChecks("/health", new HealthCheckOptions()
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+
 app.UseHttpsRedirection();
 //app.UseRouting();
+
 app.UseCors();
 app.UseWebSockets();
 
@@ -86,5 +99,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapHub<ChatHub>("mesaj");
+app.MapHub<ChatHub>("/mesaj");
+
 app.Run();
