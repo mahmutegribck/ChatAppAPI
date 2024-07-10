@@ -4,7 +4,6 @@ using ChatAppAPI.Servisler.Mesajlar.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json;
 
 namespace ChatAppAPI.Controllers
 {
@@ -34,6 +33,14 @@ namespace ChatAppAPI.Controllers
             IEnumerable<MesajGetirDTO> mesajlar = await mesajServisi.MesajlariGetir(aliciAdi, sayfaBuyuklugu, sayfaNumarasi, cancellationToken);
 
             return Ok(mesajlar);
+        }
+
+
+        [HttpPatch]
+        public async Task<IActionResult> MesajlariGorulduYap([FromBody] List<int> mesajIds, CancellationToken cancellationToken)
+        {
+            await mesajServisi.MesajlariGorulduYap(mesajIds, cancellationToken);
+            return Ok();
         }
 
 

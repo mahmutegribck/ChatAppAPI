@@ -52,17 +52,22 @@ namespace ChatAppAPI.Servisler.Mesajlar
 
             if (!mesajlar.Any()) throw new Exception("Mesaj Bulunamadı");
 
-            await MesajlariGorulduYap(mesajlar.Where(m => m.Alici.KullaniciAdi == mevcutKullanici && m.GorulmeDurumu == false).ToList(), cancellationToken);
-
             return mapper.Map<IEnumerable<MesajGetirDTO>>(mesajlar);
         }
 
-        public async Task MesajlariGorulduYap(IEnumerable<Mesaj> mesajlar, CancellationToken cancellationToken)
+        public async Task MesajlariGorulduYap(List<int> mesajIds, CancellationToken cancellationToken)
         {
+            var mesajlar = await context.Mesajs
+                                .Where(m => mesajIds.Contains(m.Id))
+                                .AsNoTracking()
+                                .ToListAsync(cancellationToken);
+
             foreach (var mesaj in mesajlar)
             {
                 mesaj.GorulmeDurumu = true;
             }
+
+            context.UpdateRange(mesajlar, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
         }
 
