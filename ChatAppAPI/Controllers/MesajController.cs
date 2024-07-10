@@ -4,6 +4,8 @@ using ChatAppAPI.Servisler.Mesajlar.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace ChatAppAPI.Controllers
 {
@@ -13,22 +15,23 @@ namespace ChatAppAPI.Controllers
     public class MesajController(IMesajServisi mesajServisi, IHubContext<ChatHub> hubContext) : ControllerBase
     {
 
-        // [HttpPost]
-        //public async Task<IActionResult> MesajGonder([FromBody] MesajGonderDTO mesajGonderDTO, CancellationToken cancellationToken)
-        //{
-        //    await mesajServisi.MesajEkle(mesajGonderDTO, cancellationToken);
+        [HttpPost]
+        public async Task<IActionResult> MesajGonder([FromBody, Required] MesajGonderDTO mesajGonderDTO, CancellationToken cancellationToken)
+        {
+            await mesajServisi.MesajEkle(mesajGonderDTO, cancellationToken);
 
-        //    if (ChatHub.BagliKullaniciIdler.Contains(mesajGonderDTO.AliciAdi))
-        //    {
-        //        await hubContext.Clients
-        //            .Group(mesajGonderDTO.AliciAdi)
-        //                .SendAsync("messageToUserReceived", JsonConvert.SerializeObject(mesajGonderDTO), cancellationToken);
-        //    }
-        //    return Ok();
-        //}
+            if (ChatHub.BagliKullaniciIdler.Contains(mesajGonderDTO.AliciAdi))
+            {
+                await hubContext.Clients
+                    .Group(mesajGonderDTO.AliciAdi)
+                        .SendAsync("messageToUserReceived", JsonConvert.SerializeObject(mesajGonderDTO), cancellationToken);
+            }
+            return Ok();
+        }
+
 
         [HttpGet]
-        public async Task<IActionResult> MesajlariGetir(string aliciAdi, int sayfaBuyuklugu, int sayfaNumarasi, CancellationToken cancellationToken)
+        public async Task<IActionResult> MesajlariGetir([FromQuery, Required] string aliciAdi, [FromHeader, Required] int sayfaBuyuklugu, [FromHeader, Required] int sayfaNumarasi, CancellationToken cancellationToken)
         {
             IEnumerable<MesajGetirDTO> mesajlar = await mesajServisi.MesajlariGetir(aliciAdi, sayfaBuyuklugu, sayfaNumarasi, cancellationToken);
 
@@ -37,7 +40,7 @@ namespace ChatAppAPI.Controllers
 
 
         [HttpPatch]
-        public async Task<IActionResult> MesajlariGorulduYap([FromBody] List<int> mesajIds, CancellationToken cancellationToken)
+        public async Task<IActionResult> MesajlariGorulduYap([FromBody, Required] List<int> mesajIds, CancellationToken cancellationToken)
         {
             await mesajServisi.MesajlariGorulduYap(mesajIds, cancellationToken);
             return Ok();

@@ -11,14 +11,14 @@ namespace ChatAppAPI.Hubs
     {
         public static List<string> BagliKullaniciIdler { get; } = [];
 
-        public async Task SendMessageToUser(MesajGonderDTO messageDto)
-        {
-            if (BagliKullaniciIdler.Contains(messageDto.AliciAdi))
-            {
-                await Clients.Group(messageDto.AliciAdi).SendAsync("messageToUserReceived", JsonConvert.SerializeObject(messageDto));
-            }
-            await mesajServisi.MesajEkle(messageDto);
-        }
+        //public async Task SendMessageToUser(MesajGonderDTO messageDto)
+        //{
+        //    if (BagliKullaniciIdler.Contains(messageDto.AliciAdi))
+        //    {
+        //        await Clients.Group(messageDto.AliciAdi).SendAsync("messageToUserReceived", JsonConvert.SerializeObject(messageDto));
+        //    }
+        //    await mesajServisi.MesajEkle(messageDto);
+        //}
 
         public override async Task OnConnectedAsync()
         {

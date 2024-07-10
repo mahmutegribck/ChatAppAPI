@@ -9,17 +9,17 @@ namespace ChatAppAPI.Servisler.Mesajlar
 {
     public class MesajServisi(ChatAppDbContext context, IMapper mapper, IKullaniciServisi kullaniciServisi) : IMesajServisi
     {
-        public async Task MesajEkle(MesajGonderDTO messageDto)
+        public async Task MesajEkle(MesajGonderDTO messageDto, CancellationToken cancellationToken)
         {
             Kullanici? alici = await context.Kullanicis
                 .Where(k => k.KullaniciAdi == messageDto.AliciAdi)
                 .AsNoTracking()
-                .FirstOrDefaultAsync() ?? throw new Exception("Alıcı Bulunamadı");
+                .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("Alıcı Bulunamadı");
 
             Kullanici? gönderici = await context.Kullanicis
                 .Where(k => k.KullaniciAdi == kullaniciServisi.MevcutKullaniciAdi)
                 .AsNoTracking()
-                .FirstOrDefaultAsync() ?? throw new Exception("Gönderici Bulunamadı.");
+                .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("Gönderici Bulunamadı.");
 
             Mesaj mesaj = new()
             {
@@ -29,8 +29,8 @@ namespace ChatAppAPI.Servisler.Mesajlar
                 AliciId = alici.Id
             };
 
-            await context.Mesajs.AddAsync(mesaj);
-            await context.SaveChangesAsync();
+            await context.Mesajs.AddAsync(mesaj, cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<MesajGetirDTO>> MesajlariGetir(string aliciKullaniciAdi, int sayfaBuyuklugu, int sayfaNumarasi, CancellationToken cancellationToken)
@@ -57,17 +57,20 @@ namespace ChatAppAPI.Servisler.Mesajlar
 
         public async Task MesajlariGorulduYap(List<int> mesajIds, CancellationToken cancellationToken)
         {
+            var alici = await context.Kullanicis.Where(k => k.KullaniciAdi == kullaniciServisi.MevcutKullaniciAdi).AsNoTracking().FirstAsync();
+
             var mesajlar = await context.Mesajs
-                                .Where(m => mesajIds.Contains(m.Id))
-                                .AsNoTracking()
+                                .Where(m => mesajIds.Contains(m.Id) && m.AliciId == alici.Id)
                                 .ToListAsync(cancellationToken);
+
+            if (mesajlar.Count == 0) throw new Exception("Okunmamış Mesaj Bulunamadı.");
 
             foreach (var mesaj in mesajlar)
             {
                 mesaj.GorulmeDurumu = true;
             }
 
-            context.UpdateRange(mesajlar, cancellationToken);
+            context.Mesajs.UpdateRange(mesajlar);
             await context.SaveChangesAsync(cancellationToken);
         }
 
