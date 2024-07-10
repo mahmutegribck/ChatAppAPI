@@ -5,7 +5,6 @@ namespace ChatAppAPI.Servisler.Kullanicilar
 {
     public class ClaimsTransformerGelistirici(IKullaniciServisi kullaniciServisi) : IClaimsTransformation
     {
-
         public class TokenKullaniciBilgisiGelistirici
         {
             public string KullaniciAdi { get; set; } = null!;
@@ -45,7 +44,7 @@ namespace ChatAppAPI.Servisler.Kullanicilar
                         if (kullaniciBilgi == null)
                             throw new Exception("Kullanıcı hatası");
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         throw;
                     }
@@ -55,9 +54,7 @@ namespace ChatAppAPI.Servisler.Kullanicilar
             {
                 throw;
             }
-
             return Task.FromResult(principal);
-
         }
     }
 }

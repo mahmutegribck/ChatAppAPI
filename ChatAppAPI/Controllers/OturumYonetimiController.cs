@@ -2,6 +2,7 @@
 using ChatAppAPI.Servisler.OturumYonetimi.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace ChatAppAPI.Controllers
 {
@@ -11,7 +12,7 @@ namespace ChatAppAPI.Controllers
     public class OturumYonetimiController(IOturumYonetimi oturumYonetimi) : ControllerBase
     {
         [HttpPost]
-        public async Task<IActionResult> KayitOl([FromBody] KullaniciKayitDto model)
+        public async Task<IActionResult> KayitOl([FromBody, Required] KullaniciKayitDto model)
         {
             if (ModelState.IsValid)
             {
@@ -23,7 +24,7 @@ namespace ChatAppAPI.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> GirisYap([FromBody] KullaniciGirisDto model)
+        public async Task<IActionResult> GirisYap([FromBody, Required] KullaniciGirisDto model)
         {
             string? token = await oturumYonetimi.GirisYap(model);
 

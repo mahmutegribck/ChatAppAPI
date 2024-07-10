@@ -1,5 +1,4 @@
-﻿using ChatAppAPI.Models;
-using ChatAppAPI.Servisler.Mesajlar.DTOs;
+﻿using ChatAppAPI.Servisler.Mesajlar.DTOs;
 
 namespace ChatAppAPI.Servisler.Mesajlar
 {
@@ -7,7 +6,7 @@ namespace ChatAppAPI.Servisler.Mesajlar
     {
         Task MesajEkle(MesajGonderDTO messageDto, CancellationToken cancellationToken);
         Task<IEnumerable<MesajGetirDTO>> MesajlariGetir(string aliciKullaniciAdi, int sayfaBuyuklugu, int sayfaNumarasi, CancellationToken cancellationToken);
-        Task MesajlariGorulduYap(List<int> mesajIds, CancellationToken cancellationToken);
+        Task MesajlariGorulduYap(MesajlariGorulduYapDTO mesajlariGorulduYapDTO, CancellationToken cancellationToken);
         Task<IEnumerable<object>> MesajlasilanKullanicilariGetir(CancellationToken cancellationToken);
 
     }

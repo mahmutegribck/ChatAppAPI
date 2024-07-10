@@ -1,8 +1,6 @@
 ﻿using ChatAppAPI.Servisler.Mesajlar;
-using ChatAppAPI.Servisler.Mesajlar.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json;
 
 namespace ChatAppAPI.Hubs
 {

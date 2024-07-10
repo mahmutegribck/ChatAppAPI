@@ -1,4 +1,5 @@
 ﻿using ChatAppAPI.Hubs;
+using ChatAppAPI.Models;
 using ChatAppAPI.Servisler.Mesajlar;
 using ChatAppAPI.Servisler.Mesajlar.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -40,9 +41,9 @@ namespace ChatAppAPI.Controllers
 
 
         [HttpPatch]
-        public async Task<IActionResult> MesajlariGorulduYap([FromBody, Required] List<int> mesajIds, CancellationToken cancellationToken)
+        public async Task<IActionResult> MesajlariGorulduYap([FromBody] MesajlariGorulduYapDTO mesajlariGorulduYapDTO, CancellationToken cancellationToken)
         {
-            await mesajServisi.MesajlariGorulduYap(mesajIds, cancellationToken);
+            await mesajServisi.MesajlariGorulduYap(mesajlariGorulduYapDTO, cancellationToken);
             return Ok();
         }
 

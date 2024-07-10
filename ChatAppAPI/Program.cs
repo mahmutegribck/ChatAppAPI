@@ -3,8 +3,11 @@ using ChatAppAPI.Context;
 using ChatAppAPI.Hubs;
 using ChatAppAPI.Servisler.Kullanicilar;
 using ChatAppAPI.Servisler.Mesajlar;
+using ChatAppAPI.Servisler.Mesajlar.DTOs;
 using ChatAppAPI.Servisler.OturumYonetimi;
 using ChatAppAPI.Servisler.OturumYonetimi.JWT;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -34,6 +37,11 @@ builder.Services.AddScoped<IOturumYonetimi, OturumYonetimi>();
 builder.Services.AddScoped<IJwtServisi, JwtServisi>();
 builder.Services.AddTransient<IKullaniciServisi, KullaniciServisi>();
 builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformerGelistirici>();
+
+builder.Services.AddTransient<IValidator<MesajGonderDTO>, MesajGonderDTOValidator>();
+
+builder.Services.AddTransient<IValidator<MesajlariGorulduYapDTO>, MesajlariGorulduYapDTOValidator>();
+
 
 builder.Services.AddHealthChecks()
     .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")!)
@@ -70,6 +78,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddFluentValidationAutoValidation(); // the same old MVC pipeline behavior
 
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)));

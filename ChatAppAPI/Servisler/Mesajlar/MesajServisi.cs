@@ -55,12 +55,12 @@ namespace ChatAppAPI.Servisler.Mesajlar
             return mapper.Map<IEnumerable<MesajGetirDTO>>(mesajlar);
         }
 
-        public async Task MesajlariGorulduYap(List<int> mesajIds, CancellationToken cancellationToken)
+        public async Task MesajlariGorulduYap(MesajlariGorulduYapDTO mesajlariGorulduYapDTO, CancellationToken cancellationToken)
         {
-            var alici = await context.Kullanicis.Where(k => k.KullaniciAdi == kullaniciServisi.MevcutKullaniciAdi).AsNoTracking().FirstAsync();
+            var alici = await context.Kullanicis.Where(k => k.KullaniciAdi == kullaniciServisi.MevcutKullaniciAdi).AsNoTracking().FirstAsync(cancellationToken);
 
             var mesajlar = await context.Mesajs
-                                .Where(m => mesajIds.Contains(m.Id) && m.AliciId == alici.Id)
+                                .Where(m => mesajlariGorulduYapDTO.MesajIds.Contains(m.Id) && m.AliciId == alici.Id)
                                 .ToListAsync(cancellationToken);
 
             if (mesajlar.Count == 0) throw new Exception("Okunmamış Mesaj Bulunamadı.");
