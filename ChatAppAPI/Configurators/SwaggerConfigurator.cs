@@ -11,7 +11,7 @@ namespace ChatAppAPI.Configurators
                 swagger.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "ActivityCalenderApp"
+                    Title = "ChatAppAPI"
                 });
                 swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
