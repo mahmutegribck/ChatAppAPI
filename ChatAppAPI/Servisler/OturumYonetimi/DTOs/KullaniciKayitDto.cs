@@ -1,18 +1,8 @@
 ﻿using FluentValidation;
-using System.ComponentModel.DataAnnotations;
 
 namespace ChatAppAPI.Servisler.OturumYonetimi.DTOs
 {
-    public class KullaniciKayitDto
-    {
-        public required string KullaniciAdi { get; set; }
-
-        [DataType(DataType.Password)]
-        public required string KullaniciSifresi { get; set; }
-
-        [DataType(DataType.Password)]
-        public required string KullaniciSifresiTekrar { get; set; }
-    }
+    public record KullaniciKayitDto(string KullaniciAdi, string KullaniciSifresi, string KullaniciSifresiTekrar);
 
 
     public class KullaniciKayitDtoValidator : AbstractValidator<KullaniciKayitDto>

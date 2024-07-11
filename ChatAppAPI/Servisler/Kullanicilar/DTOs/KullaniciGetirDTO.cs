@@ -1,8 +1,8 @@
 ﻿namespace ChatAppAPI.Servisler.Kullanicilar.DTOs
 {
-    public class KullaniciGetirDTO
-    {
-        public required string KullaniciAdi { get; set; }
-        public string? ProfileImageUrl { get; set; }
-    }
+    public record KullaniciGetirDTO(string KullaniciAdi, string? ProfileImageUrl);
+    //{
+    //    public required string KullaniciAdi { get; set; }
+    //    public string? ProfileImageUrl { get; set; }
+    //}
 }

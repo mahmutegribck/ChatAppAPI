@@ -18,14 +18,17 @@ namespace ChatAppAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> MesajGonder([FromBody] MesajGonderDTO mesajGonderDTO, CancellationToken cancellationToken)
         {
-            await mesajServisi.MesajEkle(mesajGonderDTO, cancellationToken);
-
             if (ChatHub.BagliKullaniciAdlari.Contains(mesajGonderDTO.AliciAdi))
             {
+                if (cancellationToken.IsCancellationRequested)
+                    return BadRequest();
+
                 await hubContext.Clients
                     .Group(mesajGonderDTO.AliciAdi)
                         .SendAsync("messageToUserReceived", JsonConvert.SerializeObject(mesajGonderDTO), cancellationToken);
             }
+            await mesajServisi.MesajEkle(mesajGonderDTO, cancellationToken);
+
             return Ok();
         }
 

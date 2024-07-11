@@ -10,6 +10,7 @@ namespace ChatAppAPI.Controllers
     [AllowAnonymous]
     public class OturumYonetimiController(IOturumYonetimi oturumYonetimi) : ControllerBase
     {
+
         [HttpPost]
         public async Task<IActionResult> KayitOl([FromBody] KullaniciKayitDto model, CancellationToken cancellationToken)
         {

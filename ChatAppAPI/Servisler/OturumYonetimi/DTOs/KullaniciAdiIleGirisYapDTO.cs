@@ -2,10 +2,7 @@
 
 namespace ChatAppAPI.Servisler.OturumYonetimi.DTOs
 {
-    public class KullaniciAdiIleGirisYapDTO
-    {
-        public required string KullaniciAdi { get; set; }
-    }
+    public record KullaniciAdiIleGirisYapDTO(string KullaniciAdi);
 
 
     public class KullaniciAdiIleGirisYapDTOValidator : AbstractValidator<KullaniciAdiIleGirisYapDTO>

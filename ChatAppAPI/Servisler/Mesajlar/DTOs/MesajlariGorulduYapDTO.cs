@@ -2,10 +2,7 @@
 
 namespace ChatAppAPI.Servisler.Mesajlar.DTOs
 {
-    public class MesajlariGorulduYapDTO
-    {
-        public required List<int> MesajIds { get; set; }
-    }
+    public record MesajlariGorulduYapDTO(List<int> MesajIds);
 
 
     public class MesajlariGorulduYapDTOValidator : AbstractValidator<MesajlariGorulduYapDTO>
@@ -14,9 +11,9 @@ namespace ChatAppAPI.Servisler.Mesajlar.DTOs
         {
             RuleFor(model => model.MesajIds)
                 .NotEmpty()
-                .WithMessage("Mesaj Id'leri boş olamaz.")
+                .WithMessage("Mesaj Id'leri Boş Olamaz.")
                 .Must(ids => ids.All(id => id > 0))
-                .WithMessage("Mesaj Id'leri pozitif olmalıdır.");
+                .WithMessage("Mesaj Id'leri 0'dan Büyük Olmalıdır.");
         }
     }
 }
