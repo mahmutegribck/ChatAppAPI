@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ChatAppAPI.Context;
+using ChatAppAPI.ExceptionHandling.Exceptions;
 using ChatAppAPI.Models;
 using ChatAppAPI.Servisler.Kullanicilar.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,7 @@ namespace ChatAppAPI.Servisler.Kullanicilar
 
         public async Task<KullaniciGetirDTO> MevcutKullaniciGetir(CancellationToken cancellationToken)
         {
-            Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == MevcutKullaniciAdi).AsNoTracking().FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("Kullanıcı Bulunamadı");
+            Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == MevcutKullaniciAdi).AsNoTracking().FirstOrDefaultAsync(cancellationToken) ?? throw new NotFoundException("Kullanıcı Bulunamadı");
 
             return mapper.Map<KullaniciGetirDTO>(kullanici);
         }
@@ -26,7 +27,8 @@ namespace ChatAppAPI.Servisler.Kullanicilar
         {
             IEnumerable<Kullanici> kullanicilar = await context.Kullanicis.Where(k => k.KullaniciAdi != MevcutKullaniciAdi).AsNoTracking().ToListAsync(cancellationToken);
 
-            if (!kullanicilar.Any()) throw new Exception("Kullanıcı Bulunamadı");
+            if (!kullanicilar.Any()) throw new NotFoundException("Kullanıcı Bulunamadı");
+
             return mapper.Map<IEnumerable<KullaniciGetirDTO>>(kullanicilar);
         }
     }

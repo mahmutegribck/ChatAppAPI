@@ -1,4 +1,5 @@
-﻿using ChatAppAPI.Servisler.Mesajlar;
+﻿using ChatAppAPI.ExceptionHandling.Exceptions;
+using ChatAppAPI.Servisler.Mesajlar;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
@@ -20,7 +21,7 @@ namespace ChatAppAPI.Hubs
 
         public override async Task OnConnectedAsync()
         {
-            var kullaniciAdi = (Context.GetHttpContext()!.User?.Identity?.Name) ?? throw new Exception("Kullanıcı bulunamadı.");
+            var kullaniciAdi = (Context.GetHttpContext()!.User?.Identity?.Name) ?? throw new NotFoundException("Kullanıcı bulunamadı.");
 
             lock (BagliKullaniciAdlari)
             {
@@ -33,7 +34,7 @@ namespace ChatAppAPI.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var kullaniciAdi = Context.GetHttpContext()!.User?.Identity?.Name ?? throw new Exception("Kullanıcı bulunamadı.");
+            var kullaniciAdi = Context.GetHttpContext()!.User?.Identity?.Name ?? throw new NotFoundException("Kullanıcı bulunamadı.");
 
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, kullaniciAdi);
 

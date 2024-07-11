@@ -13,99 +13,73 @@ namespace ChatAppAPI.Servisler.OturumYonetimi
     {
         public async Task KayitOl(KullaniciKayitDto model, CancellationToken cancellationToken)
         {
-            try
+            var mevcutKullanici = await context.Kullanicis
+                  .Where(k => k.KullaniciAdi == model.KullaniciAdi)
+                  .AsNoTracking()
+                  .FirstOrDefaultAsync(cancellationToken);
+
+            if (mevcutKullanici != null)
             {
-                if (model == null)
-                {
-                    throw new ArgumentNullException(nameof(model), "Model boş olamaz.");
-                }
-
-                var mevcutKullanici = await context.Kullanicis
-                    .Where(k => k.KullaniciAdi == model.KullaniciAdi)
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(cancellationToken);
-
-                if (mevcutKullanici != null)
-                {
-                    throw new ArgumentException("Bu kullanıcı adı mevcut.", model.KullaniciAdi);
-                }
-
-                model.KullaniciAdi = model.KullaniciAdi.Trim().ToLower();
-                Kullanici yeniKullanici = mapper.Map<Kullanici>(model);
-                yeniKullanici.Id = Guid.NewGuid().ToString();
-                var byteArray = Encoding.Default.GetBytes(yeniKullanici.KullaniciSifresi);
-                var hashedSifre = Convert.ToBase64String(SHA256.HashData(byteArray));
-
-                yeniKullanici.KullaniciSifresi = hashedSifre;
-
-                await context.Kullanicis.AddAsync(yeniKullanici, cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
-
+                throw new ArgumentException("Bu kullanıcı adı mevcut.", model.KullaniciAdi);
             }
-            catch (ArgumentNullException)
-            {
-                throw;
-            }
+
+            Kullanici yeniKullanici = mapper.Map<Kullanici>(model);
+
+            yeniKullanici.Id = Guid.NewGuid().ToString();
+            var byteArray = Encoding.Default.GetBytes(yeniKullanici.KullaniciSifresi);
+            var hashedSifre = Convert.ToBase64String(SHA256.HashData(byteArray));
+
+            yeniKullanici.KullaniciSifresi = hashedSifre;
+            yeniKullanici.KullaniciAdi = yeniKullanici.KullaniciAdi.Trim().ToLower();
+
+            await context.Kullanicis.AddAsync(yeniKullanici, cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
+
+
         }
 
         public async Task<string?> GirisYap(KullaniciGirisDto model, CancellationToken cancellationToken)
         {
-            try
+            var byteArray = Encoding.Default.GetBytes(model.KullaniciSifresi);
+            var hashedSifre = Convert.ToBase64String(SHA256.HashData(byteArray));
+
+            Kullanici? kullanici = await context.Kullanicis
+                .Where(k => k.KullaniciAdi == model.KullaniciAdi.Trim().ToLower() && k.KullaniciSifresi == hashedSifre)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (kullanici == null)
             {
-                var byteArray = Encoding.Default.GetBytes(model.KullaniciSifresi);
-                var hashedSifre = Convert.ToBase64String(SHA256.HashData(byteArray));
-
-                model.KullaniciSifresi = hashedSifre;
-                model.KullaniciAdi = model.KullaniciAdi.Trim().ToLower();
-
-                Kullanici? kullanici = await context.Kullanicis
-                    .Where(k => k.KullaniciAdi == model.KullaniciAdi && k.KullaniciSifresi == model.KullaniciSifresi)
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(cancellationToken);
-
-                if (kullanici == null)
-                {
-                    return null;
-                }
-
-                string token = jwtServisi.JwtTokenOlustur(kullanici);
-
-                return token;
+                return null;
             }
-            catch (Exception)
-            {
-                throw;
-            }
+
+            string token = jwtServisi.JwtTokenOlustur(kullanici);
+
+            return token;
+
         }
 
         public async Task<string?> KullaniciAdiIleGirisYap(string kullaniciAdi, CancellationToken cancellationToken)
         {
-            try
+            Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == kullaniciAdi).AsNoTracking().FirstOrDefaultAsync(cancellationToken);
+            if (kullanici == null)
             {
-                Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == kullaniciAdi).AsNoTracking().FirstOrDefaultAsync(cancellationToken);
-                if (kullanici == null)
+                var byteArray = Encoding.Default.GetBytes(Guid.NewGuid().ToString());
+                var hashedSifre = Convert.ToBase64String(SHA256.HashData(byteArray));
+
+                Kullanici yeniKullanici = new()
                 {
-                    var byteArray = Encoding.Default.GetBytes(Guid.NewGuid().ToString());
-                    var hashedSifre = Convert.ToBase64String(SHA256.HashData(byteArray));
+                    Id = Guid.NewGuid().ToString(),
+                    KullaniciAdi = kullaniciAdi,
+                    KullaniciSifresi = hashedSifre
+                };
+                await context.Kullanicis.AddAsync(yeniKullanici, cancellationToken);
+                await context.SaveChangesAsync(cancellationToken);
 
-                    Kullanici yeniKullanici = new()
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        KullaniciAdi = kullaniciAdi,
-                        KullaniciSifresi = hashedSifre
-                    };
-                    await context.Kullanicis.AddAsync(yeniKullanici,cancellationToken);
-                    await context.SaveChangesAsync(cancellationToken);
-
-                }
-                string? token = jwtServisi.KullaniciAdiIleTokenOlustur(kullaniciAdi);
-
-                return token;
             }
-            catch (Exception)
-            {
-                throw;
-            }
+            string? token = jwtServisi.KullaniciAdiIleTokenOlustur(kullaniciAdi);
+
+            return token;
         }
     }
 }

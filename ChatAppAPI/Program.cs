@@ -1,5 +1,7 @@
 using ChatAppAPI.Configurators;
 using ChatAppAPI.Context;
+using ChatAppAPI.ExceptionHandling;
+using ChatAppAPI.Extensions;
 using ChatAppAPI.Hubs;
 using ChatAppAPI.Servisler.Kullanicilar;
 using ChatAppAPI.Servisler.Mesajlar;
@@ -19,11 +21,12 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddEndpointsApiExplorer()
+    .AddProblemDetails();
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddExceptionHandler<ExceptionHandler>();
 
 SwaggerConfigurator.ConfigureSwaggerGen(builder.Services);
 
@@ -39,15 +42,7 @@ builder.Services.AddScoped<IJwtServisi, JwtServisi>();
 builder.Services.AddTransient<IKullaniciServisi, KullaniciServisi>();
 builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformerGelistirici>();
 
-
-builder.Services.AddScoped<IValidator<MesajGonderDTO>, MesajGonderDTOValidator>();
-builder.Services.AddScoped<IValidator<MesajlariGorulduYapDTO>, MesajlariGorulduYapDTOValidator>();
-
-builder.Services.AddScoped<IValidator<KullaniciKayitDto>, KullaniciKayitDtoValidator>();
-builder.Services.AddScoped<IValidator<KullaniciGirisDto>, KullaniciGirisDtoValidator>();
-builder.Services.AddScoped<IValidator<KullaniciAdiIleGirisYapDTO>, KullaniciAdiIleGirisYapDTOValidator>();
-
-
+builder.Services.AddValidationExtension();
 
 
 builder.Services.AddHealthChecks()
@@ -95,10 +90,11 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddFluentValidationAutoValidation(); // the same old MVC pipeline behavior
 
-
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)));
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
@@ -110,6 +106,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions()
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
+
 
 app.UseResponseCaching();
 

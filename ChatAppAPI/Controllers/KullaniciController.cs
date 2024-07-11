@@ -10,6 +10,7 @@ namespace ChatAppAPI.Controllers
     [Authorize]
     public class KullaniciController(IKullaniciServisi kullaniciServisi) : ControllerBase
     {
+
         [ResponseCache(Duration = 30, Location = ResponseCacheLocation.Client)]
         [HttpGet]
         public async Task<IActionResult> MevcutKullaniciGetir(CancellationToken cancellationToken)

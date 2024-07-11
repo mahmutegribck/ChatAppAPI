@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ChatAppAPI.Context;
+using ChatAppAPI.ExceptionHandling.Exceptions;
 using ChatAppAPI.Models;
 using ChatAppAPI.Servisler.Kullanicilar;
 using ChatAppAPI.Servisler.Mesajlar.DTOs;
@@ -14,17 +15,17 @@ namespace ChatAppAPI.Servisler.Mesajlar
             Kullanici? alici = await context.Kullanicis
                 .Where(k => k.KullaniciAdi == messageDto.AliciAdi)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("Alıcı Bulunamadı");
+                .FirstOrDefaultAsync(cancellationToken) ?? throw new NotFoundException("Alıcı Bulunamadı");
 
             Kullanici? gönderici = await context.Kullanicis
                 .Where(k => k.KullaniciAdi == kullaniciServisi.MevcutKullaniciAdi)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("Gönderici Bulunamadı.");
+                .FirstOrDefaultAsync(cancellationToken) ?? throw new NotFoundException("Gönderici Bulunamadı.");
 
             Mesaj mesaj = new()
             {
                 Text = messageDto.Text,
-                GonderilmeZamani = messageDto.GonderilmeZamani,
+                GonderilmeZamani = DateTime.Now,
                 GonderenId = gönderici.Id,
                 AliciId = alici.Id
             };
@@ -35,9 +36,9 @@ namespace ChatAppAPI.Servisler.Mesajlar
 
         public async Task<IEnumerable<MesajGetirDTO>> MesajlariGetir(string aliciKullaniciAdi, int sayfaBuyuklugu, int sayfaNumarasi, CancellationToken cancellationToken)
         {
-            string? mevcutKullanici = kullaniciServisi.MevcutKullaniciAdi ?? throw new Exception("Kullanıcı Bulunamadı");
+            string? mevcutKullanici = kullaniciServisi.MevcutKullaniciAdi ?? throw new NotFoundException("Kullanıcı Bulunamadı");
 
-            if (!await context.Kullanicis.AnyAsync(k => k.KullaniciAdi == aliciKullaniciAdi, cancellationToken)) throw new Exception("Alıcı Kullanıcı Bulunamadı");
+            if (!await context.Kullanicis.AnyAsync(k => k.KullaniciAdi == aliciKullaniciAdi, cancellationToken)) throw new NotFoundException("Alıcı Kullanıcı Bulunamadı");
 
             IEnumerable<Mesaj> mesajlar = await context.Mesajs
                 .Include(m => m.Gonderen)
@@ -50,7 +51,7 @@ namespace ChatAppAPI.Servisler.Mesajlar
                 .OrderBy(m => m.GonderilmeZamani).Skip((sayfaNumarasi - 1) * sayfaBuyuklugu).Take(sayfaBuyuklugu)
                 .ToListAsync(cancellationToken);
 
-            if (!mesajlar.Any()) throw new Exception("Mesaj Bulunamadı");
+            if (!mesajlar.Any()) throw new NotFoundException("Mesaj Bulunamadı");
 
             return mapper.Map<IEnumerable<MesajGetirDTO>>(mesajlar);
         }
@@ -63,7 +64,7 @@ namespace ChatAppAPI.Servisler.Mesajlar
                                 .Where(m => mesajlariGorulduYapDTO.MesajIds.Contains(m.Id) && m.AliciId == alici.Id)
                                 .ToListAsync(cancellationToken);
 
-            if (mesajlar.Count == 0) throw new Exception("Okunmamış Mesaj Bulunamadı.");
+            if (mesajlar.Count == 0) throw new NotFoundException("Okunmamış Mesaj Bulunamadı.");
 
             foreach (var mesaj in mesajlar)
             {
@@ -79,7 +80,7 @@ namespace ChatAppAPI.Servisler.Mesajlar
             Kullanici? kullanici = await context.Kullanicis
                .Where(k => k.KullaniciAdi == kullaniciServisi.MevcutKullaniciAdi)
                .AsNoTracking()
-               .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("Kullanıcı Bulunamadı");
+               .FirstOrDefaultAsync(cancellationToken) ?? throw new NotFoundException("Kullanıcı Bulunamadı");
 
 
             var mesajlasilanKullanicilar = await context.Mesajs
@@ -111,7 +112,7 @@ namespace ChatAppAPI.Servisler.Mesajlar
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            if (mesajlasilanKullanicilar.Count == 0) throw new Exception("Mesajlaşılan Kullanıcı Bulunamadı");
+            if (mesajlasilanKullanicilar.Count == 0) throw new NotFoundException("Mesajlaşılan Kullanıcı Bulunamadı");
 
             return mesajlasilanKullanicilar;
         }
