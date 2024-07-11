@@ -1,13 +1,10 @@
 using ChatAppAPI.Configurators;
 using ChatAppAPI.Context;
 using ChatAppAPI.ExceptionHandling;
-using ChatAppAPI.Extensions;
 using ChatAppAPI.Hubs;
 using ChatAppAPI.Servisler.Kullanicilar;
 using ChatAppAPI.Servisler.Mesajlar;
-using ChatAppAPI.Servisler.Mesajlar.DTOs;
 using ChatAppAPI.Servisler.OturumYonetimi;
-using ChatAppAPI.Servisler.OturumYonetimi.DTOs;
 using ChatAppAPI.Servisler.OturumYonetimi.JWT;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -17,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,7 +40,8 @@ builder.Services.AddScoped<IJwtServisi, JwtServisi>();
 builder.Services.AddTransient<IKullaniciServisi, KullaniciServisi>();
 builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformerGelistirici>();
 
-builder.Services.AddValidationExtension();
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
 
 
 builder.Services.AddHealthChecks()
