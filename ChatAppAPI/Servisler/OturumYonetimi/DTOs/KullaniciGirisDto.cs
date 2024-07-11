@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 
 namespace ChatAppAPI.Servisler.OturumYonetimi.DTOs
 {
@@ -11,5 +12,21 @@ namespace ChatAppAPI.Servisler.OturumYonetimi.DTOs
         [Required(ErrorMessage = "Sifre zorunlu")]
         [DataType(DataType.Password)]
         public required string KullaniciSifresi { get; set; }
+    }
+
+
+    public class KullaniciGirisDtoValidator : AbstractValidator<KullaniciGirisDto>
+    {
+        public KullaniciGirisDtoValidator()
+        {
+            RuleFor(dto => dto.KullaniciAdi)
+                .NotEmpty()
+                .WithMessage("Kullanıcı Adı Zorunlu.");
+
+            RuleFor(dto => dto.KullaniciSifresi)
+                .NotEmpty()
+                .WithMessage("Şifre Zorunlu.");
+
+        }
     }
 }

@@ -5,6 +5,7 @@ using ChatAppAPI.Servisler.Kullanicilar;
 using ChatAppAPI.Servisler.Mesajlar;
 using ChatAppAPI.Servisler.Mesajlar.DTOs;
 using ChatAppAPI.Servisler.OturumYonetimi;
+using ChatAppAPI.Servisler.OturumYonetimi.DTOs;
 using ChatAppAPI.Servisler.OturumYonetimi.JWT;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -38,9 +39,15 @@ builder.Services.AddScoped<IJwtServisi, JwtServisi>();
 builder.Services.AddTransient<IKullaniciServisi, KullaniciServisi>();
 builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformerGelistirici>();
 
-builder.Services.AddTransient<IValidator<MesajGonderDTO>, MesajGonderDTOValidator>();
 
-builder.Services.AddTransient<IValidator<MesajlariGorulduYapDTO>, MesajlariGorulduYapDTOValidator>();
+builder.Services.AddScoped<IValidator<MesajGonderDTO>, MesajGonderDTOValidator>();
+builder.Services.AddScoped<IValidator<MesajlariGorulduYapDTO>, MesajlariGorulduYapDTOValidator>();
+
+builder.Services.AddScoped<IValidator<KullaniciKayitDto>, KullaniciKayitDtoValidator>();
+builder.Services.AddScoped<IValidator<KullaniciGirisDto>, KullaniciGirisDtoValidator>();
+builder.Services.AddScoped<IValidator<KullaniciAdiIleGirisYapDTO>, KullaniciAdiIleGirisYapDTOValidator>();
+
+
 
 
 builder.Services.AddHealthChecks()

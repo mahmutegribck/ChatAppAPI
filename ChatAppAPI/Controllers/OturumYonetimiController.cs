@@ -2,7 +2,6 @@
 using ChatAppAPI.Servisler.OturumYonetimi.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 
 namespace ChatAppAPI.Controllers
 {
@@ -12,11 +11,11 @@ namespace ChatAppAPI.Controllers
     public class OturumYonetimiController(IOturumYonetimi oturumYonetimi) : ControllerBase
     {
         [HttpPost]
-        public async Task<IActionResult> KayitOl([FromBody, Required] KullaniciKayitDto model)
+        public async Task<IActionResult> KayitOl([FromBody] KullaniciKayitDto model, CancellationToken cancellationToken)
         {
             if (ModelState.IsValid)
             {
-                await oturumYonetimi.KayitOl(model);
+                await oturumYonetimi.KayitOl(model, cancellationToken);
                 return Ok("Kullanici Kaydi Basarili");
             }
             return BadRequest("Kullanici Kaydi Basarisiz");
@@ -24,22 +23,9 @@ namespace ChatAppAPI.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> GirisYap([FromBody, Required] KullaniciGirisDto model)
+        public async Task<IActionResult> GirisYap([FromBody] KullaniciGirisDto model, CancellationToken cancellationToken)
         {
-            string? token = await oturumYonetimi.GirisYap(model);
-
-            if (token != null)
-            {
-                return Ok(token);
-            }
-            return NotFound("Giriş Bulunamadi");
-        }
-
-
-        [HttpPost]
-        public async Task<IActionResult> KullaniciAdiIleGirisYap(string kullaniciAdi, CancellationToken cancellationToken)
-        {
-            string? token = await oturumYonetimi.KullaniciAdiIleGirisYap(kullaniciAdi, cancellationToken);
+            string? token = await oturumYonetimi.GirisYap(model, cancellationToken);
 
             if (token != null)
             {
@@ -48,5 +34,17 @@ namespace ChatAppAPI.Controllers
             return NotFound("Giriş Yapılamadı");
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> KullaniciAdiIleGirisYap([FromBody] KullaniciAdiIleGirisYapDTO kullaniciAdiIleGirisYapDTO, CancellationToken cancellationToken)
+        {
+            string? token = await oturumYonetimi.KullaniciAdiIleGirisYap(kullaniciAdiIleGirisYapDTO.KullaniciAdi, cancellationToken);
+
+            if (token != null)
+            {
+                return Ok(token);
+            }
+            return NotFound("Giriş Yapılamadı");
+        }
     }
 }

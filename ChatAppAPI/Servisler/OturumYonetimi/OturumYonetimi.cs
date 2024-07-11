@@ -11,7 +11,44 @@ namespace ChatAppAPI.Servisler.OturumYonetimi
 {
     public class OturumYonetimi(IMapper mapper, IJwtServisi jwtServisi, ChatAppDbContext context) : IOturumYonetimi
     {
-        public async Task<string?> GirisYap(KullaniciGirisDto model)
+        public async Task KayitOl(KullaniciKayitDto model, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (model == null)
+                {
+                    throw new ArgumentNullException(nameof(model), "Model boş olamaz.");
+                }
+
+                var mevcutKullanici = await context.Kullanicis
+                    .Where(k => k.KullaniciAdi == model.KullaniciAdi)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (mevcutKullanici != null)
+                {
+                    throw new ArgumentException("Bu kullanıcı adı mevcut.", model.KullaniciAdi);
+                }
+
+                model.KullaniciAdi = model.KullaniciAdi.Trim().ToLower();
+                Kullanici yeniKullanici = mapper.Map<Kullanici>(model);
+                yeniKullanici.Id = Guid.NewGuid().ToString();
+                var byteArray = Encoding.Default.GetBytes(yeniKullanici.KullaniciSifresi);
+                var hashedSifre = Convert.ToBase64String(SHA256.HashData(byteArray));
+
+                yeniKullanici.KullaniciSifresi = hashedSifre;
+
+                await context.Kullanicis.AddAsync(yeniKullanici, cancellationToken);
+                await context.SaveChangesAsync(cancellationToken);
+
+            }
+            catch (ArgumentNullException)
+            {
+                throw;
+            }
+        }
+
+        public async Task<string?> GirisYap(KullaniciGirisDto model, CancellationToken cancellationToken)
         {
             try
             {
@@ -21,7 +58,11 @@ namespace ChatAppAPI.Servisler.OturumYonetimi
                 model.KullaniciSifresi = hashedSifre;
                 model.KullaniciAdi = model.KullaniciAdi.Trim().ToLower();
 
-                Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == model.KullaniciAdi && k.KullaniciSifresi == model.KullaniciSifresi).AsNoTracking().FirstOrDefaultAsync();
+                Kullanici? kullanici = await context.Kullanicis
+                    .Where(k => k.KullaniciAdi == model.KullaniciAdi && k.KullaniciSifresi == model.KullaniciSifresi)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(cancellationToken);
+
                 if (kullanici == null)
                 {
                     return null;
@@ -32,39 +73,6 @@ namespace ChatAppAPI.Servisler.OturumYonetimi
                 return token;
             }
             catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        public async Task KayitOl(KullaniciKayitDto model)
-        {
-            try
-            {
-                if (model == null)
-                {
-                    throw new ArgumentNullException(nameof(model), "Model boş olamaz.");
-                }
-
-                var mevcutKullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == model.KullaniciAdi).AsNoTracking().FirstOrDefaultAsync();
-
-                if (mevcutKullanici != null)
-                {
-                    throw new ArgumentException("Bu kullanıcı adı mevcut.", model.KullaniciAdi);
-                }
-                model.KullaniciAdi = model.KullaniciAdi.Trim().ToLower();
-                Kullanici yeniKullanici = mapper.Map<Kullanici>(model);
-                yeniKullanici.Id = Guid.NewGuid().ToString();
-                var byteArray = Encoding.Default.GetBytes(yeniKullanici.KullaniciSifresi);
-                var hashedSifre = Convert.ToBase64String(SHA256.HashData(byteArray));
-
-                yeniKullanici.KullaniciSifresi = hashedSifre;
-
-                await context.Kullanicis.AddAsync(yeniKullanici);
-                await context.SaveChangesAsync();
-
-            }
-            catch (ArgumentNullException)
             {
                 throw;
             }

@@ -17,7 +17,7 @@ namespace ChatAppAPI.Controllers
     {
 
         [HttpPost]
-        public async Task<IActionResult> MesajGonder([FromBody, Required] MesajGonderDTO mesajGonderDTO, CancellationToken cancellationToken)
+        public async Task<IActionResult> MesajGonder([FromBody] MesajGonderDTO mesajGonderDTO, CancellationToken cancellationToken)
         {
             await mesajServisi.MesajEkle(mesajGonderDTO, cancellationToken);
 

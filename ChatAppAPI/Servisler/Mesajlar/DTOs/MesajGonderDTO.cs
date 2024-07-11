@@ -10,6 +10,7 @@ namespace ChatAppAPI.Servisler.Mesajlar.DTOs
 
     }
 
+
     public class MesajGonderDTOValidator : AbstractValidator<MesajGonderDTO>
     {
         public MesajGonderDTOValidator()

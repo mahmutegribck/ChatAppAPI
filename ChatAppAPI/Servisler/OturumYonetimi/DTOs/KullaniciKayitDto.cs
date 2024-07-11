@@ -1,19 +1,39 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 
 namespace ChatAppAPI.Servisler.OturumYonetimi.DTOs
 {
     public class KullaniciKayitDto
     {
-        [Required(ErrorMessage = "Kullanıcı Adı zorunlu")]
         public required string KullaniciAdi { get; set; }
 
-        [Required(ErrorMessage = "Sifre zorunlu")]
         [DataType(DataType.Password)]
         public required string KullaniciSifresi { get; set; }
 
-        [Required(ErrorMessage = "Şifre tekrarı zorunlu")]
         [DataType(DataType.Password)]
-        [Compare("KullaniciSifresi", ErrorMessage = "Girmiş olduğunuz parola birbiri ile eşleşmiyor.")]
         public required string KullaniciSifresiTekrar { get; set; }
+    }
+
+
+    public class KullaniciKayitDtoValidator : AbstractValidator<KullaniciKayitDto>
+    {
+        public KullaniciKayitDtoValidator()
+        {
+            RuleFor(dto => dto.KullaniciAdi)
+                .NotEmpty()
+                .WithMessage("Kullanıcı Adı Boş Olamaz.");
+
+            RuleFor(dto => dto.KullaniciSifresi)
+                .NotEmpty()
+                .WithMessage("Şifre Zorunlu.")
+                .MinimumLength(6)
+                .WithMessage("Şifre En Az 6 Karakter Uzunluğunda Olmalıdır.");
+
+            RuleFor(dto => dto.KullaniciSifresiTekrar)
+                .NotEmpty()
+                .WithMessage("Şifre Tekrarı Zorunlu.")
+                .Equal(dto => dto.KullaniciSifresi)
+                .WithMessage("Girmiş Olduğunuz Parola Birbiri İle Eşleşmiyor.");
+        }
     }
 }
