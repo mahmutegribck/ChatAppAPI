@@ -7,7 +7,7 @@ namespace ChatAppAPI.Hubs
     [Authorize]
     public class ChatHub(IMesajServisi mesajServisi) : Hub
     {
-        public static List<string> BagliKullaniciIdler { get; } = [];
+        public static List<string> BagliKullaniciAdlari { get; } = [];
 
         //public async Task SendMessageToUser(MesajGonderDTO messageDto)
         //{
@@ -22,10 +22,10 @@ namespace ChatAppAPI.Hubs
         {
             var kullaniciAdi = (Context.GetHttpContext()!.User?.Identity?.Name) ?? throw new Exception("Kullanıcı bulunamadı.");
 
-            lock (BagliKullaniciIdler)
+            lock (BagliKullaniciAdlari)
             {
-                if (!BagliKullaniciIdler.Contains(kullaniciAdi))
-                    BagliKullaniciIdler.Add(kullaniciAdi);
+                if (!BagliKullaniciAdlari.Contains(kullaniciAdi))
+                    BagliKullaniciAdlari.Add(kullaniciAdi);
             }
             await Groups.AddToGroupAsync(Context.ConnectionId, kullaniciAdi);
             await base.OnConnectedAsync();
@@ -37,9 +37,9 @@ namespace ChatAppAPI.Hubs
 
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, kullaniciAdi);
 
-            lock (BagliKullaniciIdler)
+            lock (BagliKullaniciAdlari)
             {
-                BagliKullaniciIdler.Remove(kullaniciAdi);
+                BagliKullaniciAdlari.Remove(kullaniciAdi);
             }
             await base.OnDisconnectedAsync(exception);
         }

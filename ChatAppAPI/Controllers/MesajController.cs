@@ -1,5 +1,4 @@
 ﻿using ChatAppAPI.Hubs;
-using ChatAppAPI.Models;
 using ChatAppAPI.Servisler.Mesajlar;
 using ChatAppAPI.Servisler.Mesajlar.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -21,7 +20,7 @@ namespace ChatAppAPI.Controllers
         {
             await mesajServisi.MesajEkle(mesajGonderDTO, cancellationToken);
 
-            if (ChatHub.BagliKullaniciIdler.Contains(mesajGonderDTO.AliciAdi))
+            if (ChatHub.BagliKullaniciAdlari.Contains(mesajGonderDTO.AliciAdi))
             {
                 await hubContext.Clients
                     .Group(mesajGonderDTO.AliciAdi)

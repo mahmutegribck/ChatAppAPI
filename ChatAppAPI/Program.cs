@@ -54,6 +54,14 @@ builder.Services.AddHealthChecks()
     .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")!)
     .AddSignalRHub(builder.Configuration["SignalR:HubUrl"]!);
 
+builder.Services.AddResponseCaching(_ =>
+{
+    _.MaximumBodySize = 250;//Response Body’ler için geçerli maksimum boyut. Varsayýlan olarak 64 MB’týr.
+    _.SizeLimit = 250;//Response Cache’in maksimum ne kadar boyutta tutulacaðýný belirtiriz. Varsayýlan olarak 100 MB deðerine sahiptir.
+    _.UseCaseSensitivePaths = false;//Path deðerinin büyük ya da küçük harf duyarlýðýnda olup olmamasýný belirler.
+});
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -103,6 +111,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions()
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
+app.UseResponseCaching();
 
 app.UseHttpsRedirection();
 //app.UseRouting();
