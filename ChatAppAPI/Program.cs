@@ -20,6 +20,11 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+
 builder.Services.AddEndpointsApiExplorer()
     .AddProblemDetails();
 builder.Services.AddHttpContextAccessor();
@@ -39,9 +44,6 @@ builder.Services.AddScoped<IOturumYonetimi, OturumYonetimi>();
 builder.Services.AddScoped<IJwtServisi, JwtServisi>();
 builder.Services.AddTransient<IKullaniciServisi, KullaniciServisi>();
 builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformerGelistirici>();
-
-builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-
 
 
 builder.Services.AddHealthChecks()
@@ -86,8 +88,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             });
 
 builder.Services.AddAuthorization();
-
-builder.Services.AddFluentValidationAutoValidation(); // the same old MVC pipeline behavior
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)));
 
