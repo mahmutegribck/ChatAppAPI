@@ -1,23 +1,30 @@
 ﻿using ChatAppAPI.ExceptionHandling.Exceptions;
-using ChatAppAPI.Servisler.Mesajlar;
+using ChatAppAPI.Mesajlar.Commands.MesajEkle;
+using ChatAppAPI.Servisler.Mesajlar.DTOs;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
 
 namespace ChatAppAPI.Hubs
 {
     [Authorize]
-    public class ChatHub(IMesajServisi mesajServisi) : Hub
+    public class ChatHub(IMediator mediator) : Hub
     {
         public static List<string> BagliKullaniciAdlari { get; } = [];
 
-        //public async Task SendMessageToUser(MesajGonderDTO messageDto)
-        //{
-        //    if (BagliKullaniciIdler.Contains(messageDto.AliciAdi))
-        //    {
-        //        await Clients.Group(messageDto.AliciAdi).SendAsync("messageToUserReceived", JsonConvert.SerializeObject(messageDto));
-        //    }
-        //    await mesajServisi.MesajEkle(messageDto);
-        //}
+        public async Task SendMessageToUser(MesajGonderDTO mesajGonderDTO)
+        {
+            if (BagliKullaniciAdlari.Contains(mesajGonderDTO.AliciAdi))
+            {
+                await Clients.Group(mesajGonderDTO.AliciAdi).SendAsync("messageToUserReceived", JsonConvert.SerializeObject(mesajGonderDTO));
+            }
+            await mediator.Send(new MesajEkleRequest
+            {
+                Text = mesajGonderDTO.Text,
+                AliciAdi = mesajGonderDTO.AliciAdi
+            });
+        }
 
         public override async Task OnConnectedAsync()
         {

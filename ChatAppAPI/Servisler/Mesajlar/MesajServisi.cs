@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChatAppAPI.Servisler.Mesajlar
 {
-    public class MesajServisi(ChatAppDbContext context, IMapper mapper, IKullaniciServisi kullaniciServisi) : IMesajServisi
+    public class MesajServisi(ChatAppDbContext context, IMapper mapper, IKullaniciServisi kullaniciServisi) :   IMesajServisi
     {
         public async Task MesajEkle(MesajGonderDTO messageDto, CancellationToken cancellationToken)
         {

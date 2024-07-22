@@ -1,18 +1,22 @@
-﻿using ChatAppAPI.Hubs;
-using ChatAppAPI.Servisler.Mesajlar;
-using ChatAppAPI.Servisler.Mesajlar.DTOs;
+﻿using ChatAppAPI.Mesajlar.Commands.MesajlariGorulduYap;
+using ChatAppAPI.Mesajlar.Queries.MesajlariGetir;
+using ChatAppAPI.Mesajlar.Queries.MesajlasilanKullanicilariGetir;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
+using MediatR;
+using ChatAppAPI.Hubs;
+using ChatAppAPI.Servisler.Mesajlar.DTOs;
+using ChatAppAPI.Servisler.Mesajlar;
 using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.SignalR;
+
 
 namespace ChatAppAPI.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    [Authorize]
-    public class MesajController(IMesajServisi mesajServisi, IHubContext<ChatHub> hubContext) : ControllerBase
+    //[Authorize]
+    public class MesajController(IMediator mediator, IMesajServisi mesajServisi, IHubContext<ChatHub> hubContext) : ControllerBase
     {
 
         [HttpPost]
@@ -33,29 +37,28 @@ namespace ChatAppAPI.Controllers
         }
 
 
-        [HttpGet]
-        public async Task<IActionResult> MesajlariGetir([FromQuery, Required] string aliciAdi, [FromHeader, Required] int sayfaBuyuklugu, [FromHeader, Required] int sayfaNumarasi, CancellationToken cancellationToken)
+        [HttpPost]
+        public async Task<IActionResult> MesajlariGetir([FromBody] MesajlariGetirRequest request, CancellationToken cancellationToken)
         {
-            IEnumerable<MesajGetirDTO> mesajlar = await mesajServisi.MesajlariGetir(aliciAdi, sayfaBuyuklugu, sayfaNumarasi, cancellationToken);
-
-            return Ok(mesajlar);
+            var response = await mediator.Send(request, cancellationToken);
+            return Ok(response);
         }
 
 
         [HttpPatch]
-        public async Task<IActionResult> MesajlariGorulduYap([FromBody] MesajlariGorulduYapDTO mesajlariGorulduYapDTO, CancellationToken cancellationToken)
+        public async Task<IActionResult> MesajlariGorulduYap([FromBody] MesajlariGorulduYapRequest request, CancellationToken cancellationToken)
         {
-            await mesajServisi.MesajlariGorulduYap(mesajlariGorulduYapDTO, cancellationToken);
+            await mediator.Send(request, cancellationToken);
             return Ok();
         }
-
+         
 
         [HttpGet]
         public async Task<IActionResult> MesajlasilanKullanicilariGetir(CancellationToken cancellationToken)
         {
-            IEnumerable<object> mesajlaşılanKullanıcılar = await mesajServisi.MesajlasilanKullanicilariGetir(cancellationToken);
-
-            return Ok(mesajlaşılanKullanıcılar);
+            var response = await mediator.Send(new MesajlasilanKullanicilariGetirRequest(), cancellationToken);
+            return Ok(response);
         }
     }
 }
+

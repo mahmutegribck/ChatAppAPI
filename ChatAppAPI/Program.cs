@@ -21,13 +21,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly));
 
 
 builder.Services.AddEndpointsApiExplorer()
     .AddProblemDetails();
-builder.Services.AddHttpContextAccessor();
+
 
 builder.Services.AddExceptionHandler<ExceptionHandler>();
 
@@ -39,6 +43,7 @@ builder.Services.AddDbContext<ChatAppDbContext>(options => options.UseSqlServer(
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddSignalR();
+
 builder.Services.AddScoped<IMesajServisi, MesajServisi>();
 builder.Services.AddScoped<IOturumYonetimi, OturumYonetimi>();
 builder.Services.AddScoped<IJwtServisi, JwtServisi>();
@@ -49,6 +54,7 @@ builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformerGelistiric
 builder.Services.AddHealthChecks()
     .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")!)
     .AddSignalRHub(builder.Configuration["SignalR:HubUrl"]!);
+
 
 builder.Services.AddResponseCaching(_ =>
 {
